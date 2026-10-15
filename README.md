@@ -1,21 +1,59 @@
-```txt
-npm install
+# 딸깍나라
+
+현장 일지를 빠르게 기록하고 폐기물 처리 현황을 분류·집계하는 현장 운영 대시보드 MVP입니다.
+
+## 주요 기능
+- 현장명, 폐기물 분류, 처리량, 날짜, 메모를 입력하는 일지 작성 폼
+- 폐합성·유동상·슬러지·일반/지정 폐기물 4개 분류
+- 기간별 처리량, 일지 수, 운영 현장 수 및 분류 비중 대시보드
+- 현장×분류 피벗 리포트, 일지 검색·분류 필터, 삭제 기능
+- CSV 내보내기와 브라우저 로컬 저장
+- 모바일 대응 레이아웃
+
+## 시작하기
+```bash
 npm run dev
 ```
 
-```txt
-npm run deploy
-```
+## 화면 경로
+- `/` — 대시보드, 현장 일지, 피벗 리포트 (화면 내 메뉴로 전환)
+- `/static/style.css` — 앱 스타일
+- `/static/app.js` — 화면 인터랙션과 브라우저 저장 로직
 
-[For generating/synchronizing types based on your Worker configuration run](https://developers.cloudflare.com/workers/wrangler/commands/#types):
+## 데이터 및 저장
+- 데이터 모델: `id`, `site`, `category`, `amount`, `date`, `note`, `createdAt`
+- 현재 MVP는 브라우저 `localStorage`에 기록을 저장합니다. 최초 접속 시 예시 기록이 표시됩니다.
+- 로컬 저장은 동일한 브라우저·기기에 한정되며, 여러 사용자/기기 간 공유는 지원하지 않습니다. 운영 배포 전 공유 데이터가 필요하면 Cloudflare D1 바인딩 및 인증을 연결해야 합니다.
 
-```txt
+## 사용법
+1. **일지 작성**을 누르고 현장명, 분류, 처리량, 날짜를 입력해 저장합니다.
+2. 대시보드에서 기간별 합계와 분류 비중을 확인합니다.
+3. **현장 일지** 메뉴에서 검색하거나 분류별로 필터링하고, 필요한 기록을 삭제합니다.
+4. **피벗 리포트** 메뉴에서 현장과 분류별 합계를 비교하거나 CSV를 내보냅니다.
+
+## 현재 미구현 / 다음 단계
+- Cloudflare D1을 통한 사용자 간 데이터 공유 및 백업
+- 사용자 인증, 권한 및 다중 조직 분리
+- 실제 배포 URL 연결
+
+## 배포
+- 플랫폼: Cloudflare Pages 호환 Hono 앱
+- 로컬 빌드 확인: `npm run build`
+- 배포 전 영구 공유 저장소가 필요한 경우 D1 데이터베이스를 설정하고 API를 연결하세요.
+- 프로젝트: `webapp`
+- 기술: Hono, TypeScript/TSX, 바닐라 JavaScript, CSS
+
+## 기능 엔드포인트
+- `GET /` — 현장 운영 대시보드
+- `GET /static/app.js` — 브라우저 동작
+- `GET /static/style.css` — 화면 스타일
+- API 엔드포인트는 현재 구현되어 있지 않습니다.
+
+## 개발자 도구
+```bash
+npm run build
 npm run cf-typegen
 ```
 
-Pass the `CloudflareBindings` as generics when instantiation `Hono`:
-
-```ts
-// src/index.ts
-const app = new Hono<{ Bindings: CloudflareBindings }>()
-```
+배포 실행: `npm run deploy`
+`npx wrangler pages deploy`를 사용하려면 Cloudflare 프로젝트와 인증을 먼저 설정해야 합니다.
